@@ -9,15 +9,15 @@ public class Scheduler{
         int n = Integer.parseInt(kb.nextLine()); // Not any safer than kb.nextInt() because Java doesn't have tryParseInt(), but consumes the next line (making life easier)
         try
         {
-            BufferedReader bRead = new BufferedReader(new FileReader("busy" + n + ".txt"));
-            
-            ArrayList<String> busyNames = new ArrayList<>();
+            ArrayList<String>  busyNames = new ArrayList<>();
             ArrayList<int[][]> busyTimes = new ArrayList<>();
-            ArrayList<String> freeNames = new ArrayList<>();
+            ArrayList<String>  freeNames = new ArrayList<>();
             ArrayList<int[][]> freeTimes = new ArrayList<>();
             int[][] sched;
             String[] lineTok, hourTok;
-            
+        
+            // read the "busyN.txt" first
+            BufferedReader bRead = new BufferedReader(new FileReader("busy" + n + ".txt"));  
             String currentLine;
             while ((currentLine = bRead.readLine()) != null)
             {
@@ -33,7 +33,7 @@ public class Scheduler{
                 busyTimes.add(sched); // Store these in the busyTimes arraylist.  The name of the person busy will match the index of the times
             }
             
-            //repeat the process for free
+            //repeat the process for "freeN.txt"
             bRead = new BufferedReader(new FileReader("free" + n + ".txt"));
             while ((currentLine = bRead.readLine()) != null)
             {
@@ -49,14 +49,16 @@ public class Scheduler{
                 freeTimes.add(sched);
             }
             
+            // THE BELOW BLOCK IS FOR DEBUGGING!  The logic for comparing times/dates that are free for everyone will be similar, but there is no need to print out everything
             int[][] temp;
             for(int i = 0; i < busyNames.size(); i++)
             {
                 System.out.println(busyNames.get(i));
                 temp = busyTimes.get(i);
-                for (int[] day: temp) {
-                    for (int hour: day) {
-                        System.out.print(hour + " ");
+                for (int j = 0; j < temp.length; j++) {
+                    System.out.print(getDayName(j) + ": ");
+                    for (int k = 0; k < temp[j].length; k++) {
+                        if (temp[j][k] == 1) System.out.print(getTimeName(k) + " ");
                     }
                     System.out.println();
                 }
@@ -67,14 +69,16 @@ public class Scheduler{
             {
                 System.out.println(freeNames.get(i));
                 temp = freeTimes.get(i);
-                for (int[] day: temp) {
-                    for (int hour: day) {
-                        System.out.print(hour + " ");
+                for (int j = 0; j < temp.length; j++) {
+                    System.out.print(getDayName(j) + ": ");
+                    for (int k = 0; k < temp[j].length; k++) {
+                        if (temp[j][k] == 1) System.out.print(getTimeName(k) + " ");
                     }
                     System.out.println();
                 }
                 System.out.println();
             }
+            // END DEBUG BLOCK
         }
         catch (FileNotFoundException e)
         {
@@ -82,7 +86,7 @@ public class Scheduler{
         }
     }
     
-    private static int getDayIndex(char day)
+    private static int getDayIndex(char day)  // Get the correct arrayt index from the char of the date
     {
         switch (day)
         {
@@ -120,5 +124,49 @@ public class Scheduler{
         return temp;
     }
     
+    private static String getTimeName(int dex)
+    {
+        switch (dex)
+        {
+            case 0:
+                return "8:00AM";
+            case 1:
+                return "9:00AM";
+            case 2:
+                return "10:00AM";
+            case 3:
+                return "11:00AM";
+            case 4:
+                return "NOON";
+            case 5:
+                return "1:00PM";
+            case 6:
+                return "2:00PM";
+            case 7:
+                return "3:00PM";
+            case 8:
+                return "4:00PM";
+            case 9:
+                return "5:00PM";
+        }
+        return "";
+    }
     
+    private static String getDayName(int dex)
+    {
+        switch (dex)
+        {
+            case 0:
+                return "MON";
+            case 1:
+                return "TUE";
+            case 2:
+                return "WED";
+            case 3:
+                return "THU";
+            case 4:
+                return "FRI";
+        }
+        return "";
+    }
 }
