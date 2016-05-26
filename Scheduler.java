@@ -13,6 +13,33 @@ public class Scheduler{
             ArrayList<int[][]> times = new ArrayList<>();
             int[][] sched;
             String[] lineTok, hourTok;
+            
+            /*
+                GENERAL OVERVIEW OF HOW THIS WORKS!
+                Since there are 5 days in a week and 10 available time slots (8-5 inclusive)
+                A schedule can be represented as a 5x10 grid, which we will do as a 5x10 array
+                These times are listed in a .txt file with a name attached
+                
+                This name, however, is not useful for our purposes.  It make be in the future though so there is an ArrayList means to hold them.
+                A quick example of how this will work follows:
+                A line is read from the text file, for example
+                "Smaltry, Gary /M 10 11 12 /R 10 11 /F 2 5"
+                This is then split into pieces, the first piece representing the name, the following pieces representing days.  For example
+                "Smaltry, Gary"    "M 10 11 12"    "R 10 11"    "F 2 5"
+                The name gets added to the names arraylist, and then a loop considered the remaining tokens
+                First considered would be "M 10 11 12"
+                Because we know that follows a " /" is always a character that represents a day, 
+                and there is not necessarily every day listed in someones schedule, we need to get the index of this day.
+                To do this, we again split the day string into two components by splitting on spaces.  the "\\s+" flag will split on spaces, newlines, and tabs.
+                This split gives us
+                "M"     "10 11 12"
+                We then push the first item through our getIndex function, which returns an index for the array.  M = 0, T = 1, etc.
+                Once we have this index, we can then push the second portion into our getHours function which creates a day's schedule based on supplied times and whether that person is or is not "busy"
+                We will then repeat this process for our remainings "day" strings, which for our example are "R 10 11" and "F 2 5"
+                An entire schedule is built from these, and then that schedule is added to the "times" ArrayList
+                The BufferedReader then reads the next line, and repeats the above steps for it.
+                Once it is finished with the "busyN.txt" (where N is the user's input number), the whole process is repeated with "freeN.txt"
+            */
         
             // read the "busyN.txt" first
             BufferedReader bRead = new BufferedReader(new FileReader("busy" + n + ".txt"));  
@@ -33,21 +60,21 @@ public class Scheduler{
             
             //repeat the process for "freeN.txt"
             bRead = new BufferedReader(new FileReader("free" + n + ".txt"));
-            while ((currentLine = bRead.readLine()) != null)
+            while ((currentLine = bRead.readLine()) != null)  // Read the text file line by line
             {
-                sched = new int[5][10];
+                sched = new int[5][10]; // Build an empt array to represent a person's schedule
                 for (int[] row: sched) Arrays.fill(row, 1);  // set all to 1 by default for the "free times" array
-                lineTok = currentLine.split(" /");
-                names.add(lineTok[0]);
-                for(int i = 1; i < lineTok.length; i++)
+                lineTok = currentLine.split(" /");  // Split a line on the " /" sequence.  For example: "Smaltry, Gary /M 10 11 12 /R 10 11 /F 2 5" gets split into "Smaltry, Gary", "M 10 11 12", "R 10 11", "F 2 5"
+                names.add(lineTok[0]);  // Push the first token from the above split string into the "names" list
+                for(int i = 1; i < lineTok.length; i++)  // Starting at the first token that ISN'T the name, consider the remaining tokens as days
                 {
-                    hourTok = lineTok[i].split("\\s+", 2);
+                    hourTok = lineTok[i].split("\\s+", 2);  // Split the considred day into two parts on the first space, e.g. "M 9 10 11 12" will get split into "M","9 10 11 12"
                     sched[getDayIndex(hourTok[0].charAt(0))] = getHours(hourTok[1], false);  // False this time since we are dealing with "free" schedules
                 }
-                times.add(sched);
+                times.add(sched);  // Add the constructed 2D array into ArrayList
             }
             
-            getMeetingTimes(times);
+            getMeetingTimes(times);  // Pass the ArrayList of times to see when works for everyone
             
             // THE BELOW BLOCK IS FOR DEBUGGING!  The logic for comparing times/dates that are free for everyone will be similar, but there is no need to print out everything
             /*
@@ -70,7 +97,7 @@ public class Scheduler{
         }
         catch (FileNotFoundException e)
         {
-            System.out.println(e.toString());
+            System.out.println(e.toString());  // Print out the error details if the file load fails
         }
     }
     
